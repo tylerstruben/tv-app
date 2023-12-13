@@ -3,10 +3,12 @@ import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import "./tv-channel.js";
 import "@lrnwebcomponents/video-player/video-player.js";
+
 export class TvApp extends LitElement {
   static get tag() {
     return 'tv-app';
   }
+
   static get properties() {
     return {
       appName: { type: String },
@@ -16,13 +18,16 @@ export class TvApp extends LitElement {
       
     };
   }
+
   constructor() {
     super();
     this.appName = '';
     this.source = new URL('../assets/channels.json', import.meta.url).href;
     this.channelList = [];
     this.activeIndex = 0;
+
   }
+
   static get styles() {
     return [
       css`
@@ -32,15 +37,18 @@ export class TvApp extends LitElement {
           background-color: #f8f8f8;
           color: #333;
         }
+
         .app-container {
           display: grid;
           grid-template-columns: 2fr 1fr 1fr;
           gap: 20px;
           padding: 20px;
         }
+
         .video-section {
           grid-column: 1;
         }
+
         .description-box {
           background-color: #fff;
           border-radius: 8px;
@@ -48,6 +56,8 @@ export class TvApp extends LitElement {
           padding: 20px;
           margin-top: 20px;
         }
+
+
         .channel-list {
           grid-column: 2;
           background-color: #fff;
@@ -57,10 +67,12 @@ export class TvApp extends LitElement {
           overflow-y: auto; 
           max-height: 700px;
         }
+
         .thumbnail {
           max-width: 100%;
           height: auto;
         }
+
         .controls {
           display: flex;
           justify-content: space-between;
@@ -70,6 +82,7 @@ export class TvApp extends LitElement {
           border-radius: 5px;
         
         }
+
         .prev-button,
         .next-button {
           font-size: 16px;
@@ -80,6 +93,7 @@ export class TvApp extends LitElement {
           border-radius: 5px;
           cursor: pointer;
         }
+
         .prev-button:hover,
         .next-button:hover {
           background-color: #0056b3;
@@ -87,11 +101,11 @@ export class TvApp extends LitElement {
       `,
     ];
   }
+
   render() {
     return html`
       <div class="app-container">
         <div class="video-section">
-          
           
       <video-player source="https://www.youtube.com/watch?v=hrbNqEFTbrU" accent-color="blue"></video-player> 
       <h2>Pink Panther. My Favorite Episode.</h2> 
@@ -118,7 +132,7 @@ export class TvApp extends LitElement {
                 timecode="${item.metadata.timecode}"
                 thumbnail="${item.metadata.thumbnail}"
                 minuteTranslation="${item.metadata.minuteTranslation}" 
-                
+         
               ></tv-channel> 
               
             `
@@ -129,15 +143,15 @@ export class TvApp extends LitElement {
       
     `;
   }
-  itemClick(e) { 
-    
+
+  itemClick(e) {
     // Handle channel item click
     console.log(e.target);
-    this.activeIndex= e.target.index; 
-    this.shadowRoot.querySelector('video-player').shadowRoot.querySelector("a11y-media-player").media.currentTime;
+    this.activeIndex= e.target.index;
+    
     this.shadowRoot.querySelector('video-player').shadowRoot.querySelector('a11y-media-player').play();
-    this.shadowRoot.querySelector('video-player').shadowRoot.querySelector('a11y-media-player').seek(e.target.timecode);
-    }
+   
+  }
 
   updated(changedProperties) {
     super.updated(changedProperties);
@@ -146,36 +160,47 @@ export class TvApp extends LitElement {
         this.updateChannelList(this[propName]);
       }
 
-      if(propName === "activeIndex"){ 
+      if(propName === "activeIndex"){
         console.log(this.shadowRoot.querySelectorAll("tv-channel"));
         console.log(this.activeIndex)
 
         var activeChannel = this.shadowRoot.querySelector("tv-channel[index = '" + this.activeIndex + "' ] ");
-
+       
         console.log(activeChannel);
         this.shadowRoot.querySelector('video-player').shadowRoot.querySelector('a11y-media-player').seek(activeChannel.timecode);
       }
-
+      
     });
   }
+
   prevSlide() {
     this.activeIndex = Math.max(0, this.activeIndex - 1);
     
   }
+
   nextSlide() {
     this.activeIndex = Math.min(this.channelList.length - 1, this.activeIndex + 1);  
+
   }
+
+
   connectedCallback() {
     super.connectedCallback();
     
-    setInterval(() => {
+    setInterval(() => { 
+      if (this.shadowRoot.querySelector('video-player').shadowRoot.querySelector("ally-media-player")){
       const currentTime = this.shadowRoot.querySelector('video-player').shadowRoot.querySelector('a11y-media-player').media.currentTime;
-      if (this.activeIndex + 1 < this.channelList.length &&
-          currentTime >= this.channelList[this.activeIndex + 1].metadata.timecode) {
-        this.activeIndex++;
-      }
-    }, 1000);
-  }
+      var newIndex = 0; 
+      this.channelList.map((item, index) => { 
+        newIndex = index; 
+      
+       
+    }); 
+    this.activeIndex = newIndex; 
+  } 
+}, 1000); 
+}
+
   async updateChannelList(source) {
     await fetch(source).then((resp) => resp.ok ? resp.json() : []).then((responseData) => {
       if (responseData.status === 200 && responseData.data.items && responseData.data.items.length > 0) {
@@ -184,4 +209,5 @@ export class TvApp extends LitElement {
     });
   }
 }
-customElements.define(TvApp.tag, TvApp); 
+
+customElements.define(TvApp.tag, TvApp);
